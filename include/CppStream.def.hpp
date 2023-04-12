@@ -81,7 +81,7 @@ bool strm::Stream< T >::anyMatch( const std::function< bool( const T& ) >& predi
 }
 
 template < typename T >
-size_t strm::Stream< T >::count() const {
+const size_t& strm::Stream< T >::count() const {
   return m_size;
 }
 

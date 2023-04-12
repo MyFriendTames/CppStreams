@@ -40,7 +40,7 @@ namespace strm{
     public: bool allMatch( const std::function< bool( const T& ) >& predicate ) const;
     public: bool anyMatch( const std::function< bool( const T& ) >& predicate ) const;
 
-    public: size_t count() const;
+    public: const size_t& count() const;
 
     public: const strm::Stream< T >& forEach( const std::function< void( const T& ) >& callback ) const;
     public: const strm::Stream< T >& forEach( const std::function< void( const T&, const size_t& ) >& callback ) const;
