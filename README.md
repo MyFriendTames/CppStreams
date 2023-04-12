@@ -11,14 +11,14 @@ It provides functional style programing for processing lists of elements.
 
 *First note that everything in this library is inside the **strm** namespace.*
 
-### Structure
-* strm::Stream
-* strm::StreamNode
+### Classess
+* **Stream:** this is the base class, represents an stream of data
+* **StreamNode:** nodes that will store the data inside a Stream
 
-#### strm::Stream
+#### Stream
 This is the base class. To start working with Streams, you just need to create an instance of this class
 
-*the following code shows how to create an empty Stream (not very useful)*
+*It is an empty stream (not very useful)*
 ``` cpp
 strm::Stream myStream;
 ```

@@ -3,17 +3,19 @@
 
 namespace strm{
   template < typename T > class Stream;
+  template < typename T > class Iterator;
 
   template < typename T >
-  class StreamNode{
+  class Node{
     template < typename U > friend class Stream;
+    template < typename U > friend class Iterator;
 
     private: T m_element;
-    private: strm::StreamNode< T > *m_previousNode;
-    private: strm::StreamNode< T > *m_nextNode;
+    private: strm::Node< T > *m_previousNode;
+    private: strm::Node< T > *m_nextNode;
 
-    private: StreamNode( const T& p_element, strm::StreamNode< T >* p_previousNode, strm::StreamNode< T >* p_nextNode );
-    public: virtual ~StreamNode();
+    private: Node( const T& p_element, strm::Node< T >* p_previousNode, strm::Node< T >* p_nextNode );
+    public: virtual ~Node();
   };
 }
 
