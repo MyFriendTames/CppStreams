@@ -13,6 +13,11 @@ At least C++14 is required for this library to work.
 
 *First note that everything in this library is inside the **strm** namespace.*
 
+To start usng CppStreams first include the CppStream.hpp file in your project.
+``` cpp
+#include <CppStreams.hpp>
+```
+
 ### Classes
 1. **strm::Stream:** this is the base class, represents an stream of data
 2. **strm::Node:** instances of this class will hold the actual data inside a Stream
