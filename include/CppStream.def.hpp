@@ -8,7 +8,7 @@ strm::Stream< T >::Stream() :
 
 template < typename T >
 strm::Stream< T >::Stream( const strm::Stream< T >& p_other ) :
-  m_refCount( ++*p_other.m_refCount ),
+  m_refCount( &( ++*p_other.m_refCount ) ),
   m_firstNode( p_other.m_firstNode ),
   m_lastNode( p_other.m_lastNode ),
   m_size( p_other.m_size ){
@@ -31,9 +31,19 @@ strm::Stream< T >::Stream( const std::initializer_list< T >& data ) : Stream(){
   strm::Node< T > *node;
   for ( auto& v : data ){
     ( !m_firstNode ? m_firstNode : node ) = ( !m_firstNode ? node : node->m_nextNode ) = new strm::Node< T >( v, node, nullptr );
-    ++m_size;
   }
   m_lastNode = node;
+  m_size = data.size();
+}
+
+template < typename T >
+template < typename InputIterator >
+strm::Stream< T >::Stream( const InputIterator& first, const InputIterator& last ) : Stream(){
+  for ( auto it( first ); it != last; ++it ){
+    m_lastNode = ( !m_firstNode ? m_lastNode : m_lastNode->m_nextNode ) = new strm::Node< T >( *it, m_lastNode, nullptr );
+    if ( !m_firstNode ) m_firstNode = m_lastNode;
+    ++m_size;
+  }
 }
 
 template < typename T >
@@ -47,7 +57,14 @@ strm::Stream< T >::~Stream(){
   m_refCount = nullptr;
   m_firstNode = nullptr;
   m_lastNode = nullptr;
-  m_size = 0;
+}
+
+template < typename T >
+strm::Node< T > * const & strm::Stream< T >::add( const T& element ){
+  m_lastNode = ( !m_firstNode ? m_lastNode : m_lastNode->m_nextNode ) = new strm::Node< T >( element, m_lastNode, nullptr );
+  if ( !m_firstNode ) m_firstNode = m_lastNode;
+  ++m_size;
+  return m_lastNode;
 }
 
 template < typename T >
@@ -56,7 +73,7 @@ strm::Iterator< T > strm::Stream< T >::begin() const{
 }
 
 template < typename T >
-strm::Iterator< T > strm::Stream< T >::end() const{
+strm::Iterator< T > strm::Stream< T >::end() const {
   return strm::Iterator< T >( m_lastNode, nullptr, nullptr );
 }
 
@@ -81,8 +98,114 @@ bool strm::Stream< T >::anyMatch( const std::function< bool( const T& ) >& predi
 }
 
 template < typename T >
+strm::Stream< T > strm::Stream< T >::concat( const strm::Stream< T >& other ) const {
+  if ( other.m_size ){
+    if ( m_size ){
+      strm::Stream< T > stream;
+      for ( auto& v : *this ){
+        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+      }
+      for ( auto& v : other ){
+        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+      }
+      stream.m_size = m_size + other.m_size;
+      return stream;
+    }
+    return other;
+  }
+  return *this;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::concat( strm::Stream< T >&& other ) const {
+  if ( other.m_size ){
+    if ( m_size ){
+      strm::Stream< T > stream;
+      for ( auto& v : *this ){
+        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+      }
+      for ( auto& v : other ){
+        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+      }
+      stream.m_size = m_size + other.m_size;
+      return stream;
+    }
+    return std::move( other );
+  }
+  return *this;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::concat( const std::initializer_list< T >& data ) const {
+  if ( data.size() ){
+    if ( m_size ){
+      strm::Stream< T > stream;
+      for ( auto& v : *this ){
+        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+      }
+      for ( auto& v : data ){
+        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+      }
+      stream.m_size = m_size + data.size();
+      return stream;
+    }
+    return data;
+  }
+  return *this;
+}
+
+template < typename T >
+template < typename InputIterator >
+strm::Stream< T > strm::Stream< T >::concat( const InputIterator& first, const InputIterator& last ) const {
+  if ( first != last ){
+    if ( m_size ){
+      strm::Stream< T > stream;
+      for ( auto& v : *this ){
+        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+      }
+      stream.m_size = m_size;
+      for ( auto it( first ); it != last; ++it ){
+        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( *it, stream.m_lastNode, nullptr );
+        ++stream.m_size;
+      }
+      return stream;
+    }
+    return strm::Stream< T >( first, last );
+  }
+  return *this;
+}
+
+template < typename T >
 const size_t& strm::Stream< T >::count() const {
   return m_size;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::distinct( const std::function< bool( const T&, const T& ) >& predicate ) const {
+  if ( m_size ){
+    strm::Stream< T > stream;
+    for ( auto& v : *this ){
+      if ( !stream.anyMatch( [ &v, &predicate ] ( auto a ) { return predicate( v, a ); } ) ){
+        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
+        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+      }
+    }
+    return stream;
+  }
+  return *this;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::filter( const std::function< bool( const T& ) >& predicate ) const {
+  strm::Stream< T > stream;
+  for ( auto& v : *this ){
+    if ( predicate( v ) ) stream.add( v );
+  }
+  return stream;
 }
 
 template < typename T >

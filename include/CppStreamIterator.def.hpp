@@ -57,17 +57,17 @@ strm::Iterator< T > strm::Iterator< T >::operator -- ( int ){
 }
 
 template < typename T >
-bool strm::Iterator< T >::operator == ( const strm::Iterator< T >& other ){
+bool strm::Iterator< T >::operator == ( const strm::Iterator< T >& other ) const{
   return m_node == other.m_node;
 }
 
 template < typename T >
-bool strm::Iterator< T >::operator != ( const strm::Iterator< T >& other ){
+bool strm::Iterator< T >::operator != ( const strm::Iterator< T >& other ) const{
   return m_node != other.m_node;
 }
 
 template < typename T >
-strm::Iterator< T >::operator bool (){
+strm::Iterator< T >::operator bool () const{
   return !!m_node;
 }
 

@@ -20,10 +20,10 @@ namespace strm{
     public: Iterator& operator -- ();
     public: Iterator operator -- ( int );
 
-    public: bool operator == ( const strm::Iterator< T >& other );
-    public: bool operator != ( const strm::Iterator< T >& other );
+    public: bool operator == ( const strm::Iterator< T >& other ) const;
+    public: bool operator != ( const strm::Iterator< T >& other ) const;
     
-    public: operator bool ();
+    public: operator bool () const;
 
     public: T& operator * ();
     public: T& operator -> ();
