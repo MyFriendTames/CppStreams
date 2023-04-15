@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <functional>
 #include <utility>
+#include <optional>
 
 #include "CppStreamNode.hpp"
 #include "CppStreamIterator.hpp"
@@ -64,6 +65,8 @@ namespace strm{
     public: strm::Stream< T > distinct( const std::function< bool( const T&, const T& ) >& predicate ) const;
 
     public: strm::Stream< T > filter( const std::function< bool( const T& ) >& predicate ) const;
+
+    public: std::optional< T > findFirst() const;
 
     public: const strm::Stream< T >& forEach( const std::function< void( const T& ) >& callback ) const;
     public: const strm::Stream< T >& forEach( const std::function< void( const T&, const size_t& ) >& callback ) const;

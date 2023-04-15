@@ -4,7 +4,7 @@ This is a simple lightweight library inspired by the java.util.stream library av
 It provides functional style programing for processing lists of elements.
 
 ```
-At least C++14 is required for this library to work.
+At least C++17 is required for this library to work.
 ```
 
 *CppStreams library is distributed under the ISC open source licence*
@@ -60,6 +60,8 @@ const size_t& strm::Stream< T >::count() const;
 strm::Stream< T > strm::Stream< T >::distinct( const std::function< bool( const T&, const T& ) >& predicate ) const
 
 strm::Stream< T > strm::Stream< T >::filter( const std::function< bool( const T& ) >& predicate ) const;
+
+std::optional< T > strm::Stream< T >::findFirst() const;
 
 const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T& ) >& callback ) const;
 const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T&, const size_t& ) >& callback ) const;

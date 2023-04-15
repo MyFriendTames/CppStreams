@@ -209,6 +209,12 @@ strm::Stream< T > strm::Stream< T >::filter( const std::function< bool( const T&
 }
 
 template < typename T >
+std::optional< T > strm::Stream< T >::findFirst() const {
+  if ( m_firstNode ) return m_firstNode->m_element;
+  return {};
+}
+
+template < typename T >
 const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T& ) >& callback ) const {
   for ( auto it( begin() ); it; ++it ) callback( *it );
   return *this;
