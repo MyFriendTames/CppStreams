@@ -1,4 +1,4 @@
-# Cpp Streams
+# CppStreams
 
 This is a simple lightweight library inspired by the java.util.stream library available since Java 8.
 It provides functional style programing for processing lists of elements.
