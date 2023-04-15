@@ -25,7 +25,7 @@ To start usng CppStreams first include the CppStream.hpp file in your project.
 2. **strm::Node:** instances of this class will hold the actual data inside a Stream
 3. **strm::Iterator:** this class allows the user to iterate over the elements of a Stream
 
-#### strm::Stream
+### strm::Stream
 This is the base class. To start working with Streams, you just need to create an instance of this class passing the data you want by parameter.
 
 *A very simple example could be*
@@ -34,7 +34,7 @@ strm::Stream myStream{ 10, 2, 54, 2, 34, 1, 34 }; // Instance of a Stream
 std::cout << "Is any number even? " << myStream.anyMatch( [] ( auto x ) { return x % 10 == 0; } ) << std::endl;
 ```
 
-##### strm::Stream: Public Methods
+#### strm::Stream: Public Methods
 ``` cpp
 strm::Stream< T >::Stream();
 strm::Stream< T >::Stream( const strm::Stream< T >& p_other );
