@@ -34,7 +34,7 @@ strm::Stream myStream{ 10, 2, 54, 2, 34, 1, 34 }; // Instance of a Stream
 std::cout << "Is any number even? " << myStream.anyMatch( [] ( auto x ) { return x % 10 == 0; } ) << std::endl;
 ```
 
-##### Public Methods
+##### strm::Stream: Public Methods
 ``` cpp
 strm::Stream< T >::Stream();
 strm::Stream< T >::Stream( const strm::Stream< T >& p_other );
