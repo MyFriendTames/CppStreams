@@ -25,7 +25,7 @@ To start usng CppStreams first include the CppStream.hpp file in your project.
 2. **strm::Node:** instances of this class will hold the actual data inside a Stream
 3. **strm::Iterator:** this class allows the user to iterate over the elements of a Stream
 
-1. #### strm::Stream
+#### strm::Stream
 This is the base class. To start working with Streams, you just need to create an instance of this class passing the data you want by parameter.
 
 *A very simple example could be*
