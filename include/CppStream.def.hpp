@@ -78,23 +78,8 @@ strm::Iterator< T > strm::Stream< T >::end() const {
 }
 
 template < typename T >
-bool strm::Stream< T >::allMatch( const std::function< bool( const T& ) >& predicate ) const {
-  for ( auto& element : *this ){
-    if ( !predicate( element ) ){
-      return false;
-    }
-  }
-  return m_size > 0;
-}
-
-template < typename T >
-bool strm::Stream< T >::anyMatch( const std::function< bool( const T& ) >& predicate ) const {
-  for ( auto& element : *this ){
-    if ( predicate( element ) ){
-      return true;
-    }
-  }
-  return false;
+const size_t& strm::Stream< T >::count() const {
+  return m_size;
 }
 
 template < typename T >
@@ -102,14 +87,8 @@ strm::Stream< T > strm::Stream< T >::concat( const strm::Stream< T >& other ) co
   if ( other.m_size ){
     if ( m_size ){
       strm::Stream< T > stream;
-      for ( auto& v : *this ){
-        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
-      }
-      for ( auto& v : other ){
-        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-      }
-      stream.m_size = m_size + other.m_size;
+      for ( auto& v : *this ) stream.add( v );
+      for ( auto& v : other ) stream.add( v );
       return stream;
     }
     return other;
@@ -122,14 +101,8 @@ strm::Stream< T > strm::Stream< T >::concat( strm::Stream< T >&& other ) const {
   if ( other.m_size ){
     if ( m_size ){
       strm::Stream< T > stream;
-      for ( auto& v : *this ){
-        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
-      }
-      for ( auto& v : other ){
-        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-      }
-      stream.m_size = m_size + other.m_size;
+      for ( auto& v : *this ) stream.add( v );
+      for ( auto& v : other ) stream.add( v );
       return stream;
     }
     return std::move( other );
@@ -142,14 +115,8 @@ strm::Stream< T > strm::Stream< T >::concat( const std::initializer_list< T >& d
   if ( data.size() ){
     if ( m_size ){
       strm::Stream< T > stream;
-      for ( auto& v : *this ){
-        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
-      }
-      for ( auto& v : data ){
-        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-      }
-      stream.m_size = m_size + data.size();
+      for ( auto& v : *this ) stream.add( v );
+      for ( auto& v : data ) stream.add( v );
       return stream;
     }
     return data;
@@ -163,15 +130,8 @@ strm::Stream< T > strm::Stream< T >::concat( const InputIterator& first, const I
   if ( first != last ){
     if ( m_size ){
       strm::Stream< T > stream;
-      for ( auto& v : *this ){
-        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
-      }
-      stream.m_size = m_size;
-      for ( auto it( first ); it != last; ++it ){
-        stream.m_lastNode = stream.m_lastNode->m_nextNode = new strm::Node< T >( *it, stream.m_lastNode, nullptr );
-        ++stream.m_size;
-      }
+      for ( auto& v : *this ) stream.add( v );
+      for ( auto it( first ); it != last; ++it ) stream.add( *it );
       return stream;
     }
     return strm::Stream< T >( first, last );
@@ -180,8 +140,70 @@ strm::Stream< T > strm::Stream< T >::concat( const InputIterator& first, const I
 }
 
 template < typename T >
-const size_t& strm::Stream< T >::count() const {
-  return m_size;
+std::optional< T > strm::Stream< T >::findFirst() const {
+  if ( m_firstNode ) return m_firstNode->m_element;
+  return {};
+}
+
+template < typename T >
+std::optional< T > strm::Stream< T >::min( const std::function< int8_t( const T&, const T& ) >& comparator ) const {
+  if ( m_size ){
+    T* element( nullptr );
+    for ( auto it( begin() ); it; ++it ){
+      if ( !element || comparator( *element, *it ) < 0 ) element = &( *it );
+    }
+    return *element;
+  }
+  return {};
+}
+
+template < typename T >
+std::optional< T > strm::Stream< T >::max( const std::function< int8_t( const T&, const T& ) >& comparator ) const {
+  if ( m_size ){
+    T* element( nullptr );
+    for ( auto it( begin() ); it; ++it ){
+      if ( !element || comparator( *element, *it ) > 0 ) element = &( *it );
+    }
+    return *element;
+  }
+  return {};
+}
+
+template < typename T >
+bool strm::Stream< T >::allMatch( const std::function< bool( const T& ) >& predicate ) const {
+  for ( auto& element : *this ){
+    if ( !predicate( element ) ) return false;
+  }
+  return m_size > 0;
+}
+
+template < typename T >
+bool strm::Stream< T >::anyMatch( const std::function< bool( const T& ) >& predicate ) const {
+  for ( auto& element : *this ){
+    if ( predicate( element ) ) return true;
+  }
+  return false;
+}
+
+template < typename T >
+bool strm::Stream< T >::noneMatch( const std::function< bool( const T& ) >& predicate ) const {
+  for ( auto& element : *this ){
+    if ( predicate( element ) ) return false;
+  }
+  return true;
+}
+
+template < typename T >
+const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T& ) >& callback ) const {
+  for ( auto it( begin() ); it; ++it ) callback( *it );
+  return *this;
+}
+
+template < typename T >
+const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T&, const size_t& ) >& callback ) const {
+  size_t i( 0 );
+  for ( auto it( begin() ); it; ++it ) callback( *it, i++ );
+  return *this;
 }
 
 template < typename T >
@@ -190,8 +212,7 @@ strm::Stream< T > strm::Stream< T >::distinct( const std::function< bool( const 
     strm::Stream< T > stream;
     for ( auto& v : *this ){
       if ( !stream.anyMatch( [ &v, &predicate ] ( auto a ) { return predicate( v, a ); } ) ){
-        stream.m_lastNode = ( !stream.m_firstNode ? stream.m_lastNode : stream.m_lastNode->m_nextNode ) = new strm::Node< T >( v, stream.m_lastNode, nullptr );
-        if ( !stream.m_firstNode ) stream.m_firstNode = stream.m_lastNode;
+        stream.add( v );
       }
     }
     return stream;
@@ -206,25 +227,6 @@ strm::Stream< T > strm::Stream< T >::filter( const std::function< bool( const T&
     if ( predicate( v ) ) stream.add( v );
   }
   return stream;
-}
-
-template < typename T >
-std::optional< T > strm::Stream< T >::findFirst() const {
-  if ( m_firstNode ) return m_firstNode->m_element;
-  return {};
-}
-
-template < typename T >
-const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T& ) >& callback ) const {
-  for ( auto it( begin() ); it; ++it ) callback( *it );
-  return *this;
-}
-
-template < typename T >
-const strm::Stream< T >& strm::Stream< T >::forEach( const std::function< void( const T&, const size_t& ) >& callback ) const {
-  size_t i( 0 );
-  for ( auto it( begin() ); it; ++it ) callback( *it, i++ );
-  return *this;
 }
 
 template < typename T >
@@ -258,4 +260,36 @@ U strm::Stream< T >::reduce( const std::function< U( const U&, const T& ) >& cal
     result = callback( result, node->m_element );
   }
   return result;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::limit( size_t n ) const {
+  if ( m_size ){
+    strm::Stream< T > stream;
+    for ( auto it( begin() ); it && n > 0; ++it, --n ){
+      stream.add( *it );
+    }
+    return stream;
+  }
+  return *this;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::skip( size_t n ) const {
+  if ( n > 0 ){
+    strm::Stream< T > stream;
+    if ( m_size > n ){
+      for ( auto it( begin() ); it; ++it ){
+        if ( !n ) stream.add( *it );
+        else --n;
+      }
+    }
+    return stream;
+  }
+  return *this;
+}
+
+template < typename T >
+strm::Stream< T > strm::Stream< T >::sorted( const std::function< bool( const T&, const T& ) >& predicate ) const {
+  return {};
 }

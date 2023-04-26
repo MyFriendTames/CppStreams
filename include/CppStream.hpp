@@ -48,34 +48,45 @@ namespace strm{
     /// @return Iterator to the past-the-end element
     public: strm::Iterator< T > end() const;
 
-    /// @brief Returns whether all elements of the Stream match the predicate
-    /// @return true if all the elements satify the predicate
-    public: bool allMatch( const std::function< bool( const T& ) >& predicate ) const;
-    /// @brief Returns whether any element of the Stream match the predicate
-    /// @return true if any element satify the predicate
-    public: bool anyMatch( const std::function< bool( const T& ) >& predicate ) const;
+    public: const size_t& count() const;
 
     public: strm::Stream< T > concat( const strm::Stream< T >& other ) const;
     public: strm::Stream< T > concat( strm::Stream< T >&& other ) const;
     public: strm::Stream< T > concat( const std::initializer_list< T >& data ) const;
     public: template < typename InputIterator > Stream< T > concat( const InputIterator& first, const InputIterator& last ) const;
 
-    public: const size_t& count() const;
-
-    public: strm::Stream< T > distinct( const std::function< bool( const T&, const T& ) >& predicate ) const;
-
-    public: strm::Stream< T > filter( const std::function< bool( const T& ) >& predicate ) const;
-
     public: std::optional< T > findFirst() const;
+    
+    public: std::optional< T > min( const std::function< int8_t( const T&, const T& ) >& comparator ) const;
+    public: std::optional< T > max( const std::function< int8_t( const T&, const T& ) >& comparator ) const;
+
+    /// @brief Returns whether all elements of the Stream match the predicate
+    /// @return true if all the elements satify the predicate
+    public: bool allMatch( const std::function< bool( const T& ) >& predicate ) const;
+    /// @brief Returns whether any element of the Stream match the predicate
+    /// @return true if any element satifies the predicate
+    public: bool anyMatch( const std::function< bool( const T& ) >& predicate ) const;
+    /// @brief Returns whether none of the element in the Stream match the predicate
+    /// @return true if no element satifies the predicate
+    public: bool noneMatch( const std::function< bool( const T& ) >& predicate ) const;
 
     public: const strm::Stream< T >& forEach( const std::function< void( const T& ) >& callback ) const;
     public: const strm::Stream< T >& forEach( const std::function< void( const T&, const size_t& ) >& callback ) const;
+    
+    public: strm::Stream< T > distinct( const std::function< bool( const T&, const T& ) >& predicate ) const;
+
+    public: strm::Stream< T > filter( const std::function< bool( const T& ) >& predicate ) const;
 
     public: strm::Stream< T > map( const std::function< T( const T& ) >& callback ) const;
     public: template < typename U > strm::Stream< U > map( const std::function< U( const T& ) >& callback ) const;
 
     public: T reduce( const std::function< T( const T&, const T& ) >& callback, const T& ini = T() ) const;
     public: template < typename U > U reduce( const std::function< U( const U&, const T& ) >& callback, const U& ini = U() ) const;
+
+    public: strm::Stream< T > limit( size_t n ) const;
+    public: strm::Stream< T > skip( size_t n ) const;
+
+    public: strm::Stream< T > sorted( const std::function< bool( const T&, const T& ) >& predicate ) const;
   };
 
   #include "CppStream.def.hpp"
